@@ -19,7 +19,7 @@ Aturan:
 Kembalikan HANYA JSON valid sesuai skema ini:
 { 
   "items": [{ "name": string, "price": number }],
-  "fees": [{ "name": string, "price": number, "type": "fee" | "discount" }]
+  "fees": [{ "name": string, "price": number, "type": "add" | "subtract" }]
 }
 `;
 
@@ -56,11 +56,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const text = response.text();
 
     const parsed = JSON.parse(text);
-    
+
     return res.status(200).json(parsed);
   } catch (error) {
     console.error('Gemini Server Error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Failed to parse receipt with Gemini AI',
       details: error instanceof Error ? error.message : 'Unknown error'
     });

@@ -13,7 +13,7 @@ export interface ParsedReceiptItem {
 export interface ParsedReceiptFee {
   name: string;
   price: number;
-  type: 'fee' | 'discount';
+  type: 'add' | 'substract';
 }
 
 export interface ParsedReceipt {

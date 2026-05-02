@@ -17,11 +17,11 @@ export type BillAction =
   | { type: 'UPDATE_FEE'; id: string; field: keyof Fee; value: unknown }
   | { type: 'REMOVE_FEE'; id: string }
   | { type: 'APPLY_PARSED_RECEIPT'; personId: string; items: ParsedReceiptItem[] }
-  | { 
-      type: 'APPLY_PARSED_MAPPING'; 
-      assignments: { personId: string; item: ParsedReceiptItem }[];
-      fees: import('@/types').ParsedReceiptFee[];
-    }
+  | {
+    type: 'APPLY_PARSED_MAPPING';
+    assignments: { personId: string; item: ParsedReceiptItem }[];
+    fees: import('@/types').ParsedReceiptFee[];
+  }
   | { type: 'RESET_BILL' };
 
 function createItem(): Item {
@@ -72,13 +72,13 @@ export function billReducer(state: BillState, action: BillAction): BillState {
         persons: state.persons.map((p) =>
           p.id === action.personId
             ? {
-                ...p,
-                items: p.items.map((item) =>
-                  item.id === action.itemId
-                    ? { ...item, [action.field]: action.value }
-                    : item
-                ),
-              }
+              ...p,
+              items: p.items.map((item) =>
+                item.id === action.itemId
+                  ? { ...item, [action.field]: action.value }
+                  : item
+              ),
+            }
             : p
         ),
       };
@@ -156,7 +156,7 @@ export function billReducer(state: BillState, action: BillAction): BillState {
         id: crypto.randomUUID(),
         name: f.name,
         amount: Math.abs(f.price),
-        type: f.price < 0 ? 'discount' : 'add',
+        type: f.price < 0 ? 'subtract' : 'add',
         isDefault: false,
       }));
 

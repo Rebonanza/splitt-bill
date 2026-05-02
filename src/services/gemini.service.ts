@@ -19,8 +19,8 @@ export async function callGeminiAPI(ocrText: string): Promise<ParsedReceipt> {
       throw new Error(errorData.error || 'Server error');
     }
 
-    const data = await response.json() as { items: { name: string; price: number }[], fees?: { name: string; price: number; type: 'fee' | 'discount' }[] };
-    
+    const data = await response.json() as { items: { name: string; price: number }[], fees?: { name: string; price: number; type: 'add' | 'substract' }[] };
+
     return {
       items: data.items ?? [],
       fees: data.fees ?? [],
@@ -29,7 +29,7 @@ export async function callGeminiAPI(ocrText: string): Promise<ParsedReceipt> {
     };
   } catch (error) {
     console.error('OCR Parsing Error:', error);
-    
+
     // Fallback jika terjadi error
     return {
       items: [],
