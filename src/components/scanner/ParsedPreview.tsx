@@ -11,19 +11,18 @@ interface ParsedPreviewProps {
 }
 
 export function ParsedPreview({ result, onApplied }: ParsedPreviewProps) {
-  const { persons, applyParsedMapping } = useBill();
+  const { persons, applyParsedMapping, addPerson } = useBill();
   
-  // Track which item (index) is assigned to which person (id)
-  // Default to first person for all items for convenience
-  const [assignments, setAssignments] = useState<Record<number, string>>(() => {
-    const initial: Record<number, string> = {};
-    result.items.forEach((_, idx) => {
-      initial[idx] = persons[0]?.id || '';
-    });
-    return initial;
-  });
+  // Start with empty assignments so user MUST pick manually
+  const [assignments, setAssignments] = useState<Record<number, string>>({});
+
+  const isAllAssigned = result.items.length > 0 && 
+    Object.keys(assignments).length === result.items.length &&
+    Object.values(assignments).every(id => id !== '');
 
   const handleApply = () => {
+    if (!isAllAssigned) return;
+
     const mapping = result.items.map((item, idx) => ({
       personId: assignments[idx],
       item,
@@ -45,9 +44,14 @@ export function ParsedPreview({ result, onApplied }: ParsedPreviewProps) {
       {/* Items Section */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold uppercase tracking-widest text-muted">
-            Mapping Item per Orang:
-          </label>
+          <div className="flex flex-col gap-0.5">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted">
+              Mapping Item per Orang:
+            </label>
+            {!isAllAssigned && result.items.length > 0 && (
+              <span className="text-[10px] text-danger animate-pulse">Pilih orang untuk setiap item</span>
+            )}
+          </div>
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
             result.confidence === 'high' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'
           }`}>
@@ -57,7 +61,7 @@ export function ParsedPreview({ result, onApplied }: ParsedPreviewProps) {
         
         <div className="flex flex-col gap-2 max-h-[40vh] overflow-y-auto pr-1">
           {result.items.map((item, idx) => (
-            <div key={idx} className="flex flex-col gap-2 rounded-xl border border-border bg-surface-2/30 p-3">
+            <div key={idx} className="flex flex-col gap-2 rounded-xl border border-border bg-surface-2/30 p-3 transition-all">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-xs font-bold" style={{ color: 'var(--text)' }}>{item.name}</span>
                 <span className="text-xs font-mono font-bold text-accent">{formatCurrency(item.price)}</span>
@@ -87,6 +91,15 @@ export function ParsedPreview({ result, onApplied }: ParsedPreviewProps) {
                     </button>
                   );
                 })}
+                
+                {/* Quick Add Person Button */}
+                <button
+                  onClick={addPerson}
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold border border-dashed border-border/50 text-muted hover:bg-surface-2 hover:text-text transition-all"
+                >
+                  <UserPlus size={10} />
+                  Tambah
+                </button>
               </div>
             </div>
           ))}
