@@ -40,6 +40,7 @@ export function Header({ onScanClick, onReset }: HeaderProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          <InstallAppButton />
           <button
             onClick={onReset}
             title="Reset bill"
@@ -53,7 +54,6 @@ export function Header({ onScanClick, onReset }: HeaderProps) {
             <RefreshCw size={15} />
           </button>
 
-          <InstallAppButton />
 
           <button
             onClick={toggleTheme}
