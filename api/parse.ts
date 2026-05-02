@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MODEL_NAME = 'gemini-2.0-flash-lite';
+const MODEL_NAME = 'gemini-2.5-flash-lite';
 
 const SYSTEM_PROMPT = `
 Kamu adalah parser struk belanja Indonesia.
