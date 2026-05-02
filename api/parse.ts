@@ -1,19 +1,29 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MODEL_NAME = 'gemini-2.5-flash-lite';
+const MODEL_NAME = 'gemini-2.0-flash';
 
 const SYSTEM_PROMPT = `
-Kamu adalah parser struk belanja Indonesia.
-Dari teks OCR berikut, ekstrak semua nama item dan harganya.
-Abaikan total, subtotal, pajak, dan baris yang bukan item.
-Normalisasi harga: hilangkan titik/koma pemisah ribuan, return angka integer.
+Kamu adalah parser struk belanja Indonesia (terutama platform seperti ShopeeFood, GoFood, GrabFood, atau struk restoran).
+Dari teks OCR berikut, ekstrak:
+1. Daftar item menu: nama item dan harga total item tersebut.
+2. Daftar biaya tambahan & diskon (pajak, biaya layanan, biaya pengiriman/ongkir, voucher, diskon, dll).
+
+Aturan:
+- Abaikan subtotal dan grand total (saya akan hitung sendiri).
+- Normalisasi harga: hilangkan simbol mata uang, titik, atau koma. Return angka integer.
+- Untuk Voucher, Diskon, atau Potongan harga, berikan harga NEGATIF (contoh: -24800).
+- Masukkan semua biaya (ongkir, layanan, dll) dan potongan (voucher) ke dalam array "fees".
+- Pastikan nama item bersih dari angka kuantitas di depan (contoh: "1 x Bangor Juragan" jadi "Bangor Juragan").
+
 Kembalikan HANYA JSON valid sesuai skema ini:
-{ "items": [{ "name": string, "price": number }] }
+{ 
+  "items": [{ "name": string, "price": number }],
+  "fees": [{ "name": string, "price": number, "type": "fee" | "discount" }]
+}
 `;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Hanya izinkan method POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -24,7 +34,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'ocrText is required' });
   }
 
-  // Ambil API Key dari Environment Variable (Aman di sisi server)
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -48,7 +57,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const parsed = JSON.parse(text);
     
-    // Kembalikan hasil ke frontend
     return res.status(200).json(parsed);
   } catch (error) {
     console.error('Gemini Server Error:', error);

@@ -10,8 +10,15 @@ export interface ParsedReceiptItem {
   price: number;
 }
 
+export interface ParsedReceiptFee {
+  name: string;
+  price: number;
+  type: 'fee' | 'discount';
+}
+
 export interface ParsedReceipt {
   items: ParsedReceiptItem[];
+  fees?: ParsedReceiptFee[];
   rawText: string;
   confidence: 'high' | 'medium' | 'low';
 }

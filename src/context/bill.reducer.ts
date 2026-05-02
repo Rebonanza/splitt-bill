@@ -17,6 +17,11 @@ export type BillAction =
   | { type: 'UPDATE_FEE'; id: string; field: keyof Fee; value: unknown }
   | { type: 'REMOVE_FEE'; id: string }
   | { type: 'APPLY_PARSED_RECEIPT'; personId: string; items: ParsedReceiptItem[] }
+  | { 
+      type: 'APPLY_PARSED_MAPPING'; 
+      assignments: { personId: string; item: ParsedReceiptItem }[];
+      fees: import('@/types').ParsedReceiptFee[];
+    }
   | { type: 'RESET_BILL' };
 
 function createItem(): Item {
@@ -124,10 +129,41 @@ export function billReducer(state: BillState, action: BillAction): BillState {
             name: i.name,
             price: i.price,
           }));
-          // Remove blank placeholder items, then append
           const existingNonBlank = p.items.filter((item) => item.name.trim() || item.price > 0);
           return { ...p, items: [...existingNonBlank, ...newItems] };
         }),
+      };
+    }
+
+    case 'APPLY_PARSED_MAPPING': {
+      // 1. Handle Item Assignments
+      const newPersons = state.persons.map((p) => {
+        const assignedToThisPerson = action.assignments.filter((a) => a.personId === p.id);
+        if (assignedToThisPerson.length === 0) return p;
+
+        const newItems: Item[] = assignedToThisPerson.map((a) => ({
+          id: crypto.randomUUID(),
+          name: a.item.name,
+          price: a.item.price,
+        }));
+
+        const existingNonBlank = p.items.filter((item) => item.name.trim() || item.price > 0);
+        return { ...p, items: [...existingNonBlank, ...newItems] };
+      });
+
+      // 2. Handle Fees
+      const newFees: Fee[] = action.fees.map((f) => ({
+        id: crypto.randomUUID(),
+        name: f.name,
+        amount: Math.abs(f.price),
+        type: f.price < 0 ? 'discount' : 'add',
+        isDefault: false,
+      }));
+
+      return {
+        ...state,
+        persons: newPersons,
+        fees: [...state.fees, ...newFees],
       };
     }
 

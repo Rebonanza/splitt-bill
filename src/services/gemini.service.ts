@@ -19,10 +19,11 @@ export async function callGeminiAPI(ocrText: string): Promise<ParsedReceipt> {
       throw new Error(errorData.error || 'Server error');
     }
 
-    const data = await response.json() as { items: { name: string; price: number }[] };
+    const data = await response.json() as { items: { name: string; price: number }[], fees?: { name: string; price: number; type: 'fee' | 'discount' }[] };
     
     return {
       items: data.items ?? [],
+      fees: data.fees ?? [],
       rawText: ocrText,
       confidence: (data.items?.length ?? 0) > 0 ? 'high' : 'low',
     };

@@ -31,5 +31,8 @@ export function useBill() {
 
     applyParsedReceipt: (personId: string, items: ParsedReceiptItem[]) =>
       dispatch({ type: 'APPLY_PARSED_RECEIPT', personId, items }),
+    
+    applyParsedMapping: (assignments: { personId: string; item: ParsedReceiptItem }[], fees: import('@/types').ParsedReceiptFee[]) =>
+      dispatch({ type: 'APPLY_PARSED_MAPPING', assignments, fees }),
   };
 }
