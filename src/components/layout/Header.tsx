@@ -1,5 +1,6 @@
 import { Moon, Sun, ScanLine, RefreshCw } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
+import { InstallAppButton } from '../InstallAppButton';
 
 interface HeaderProps {
   onScanClick: () => void;
@@ -51,6 +52,8 @@ export function Header({ onScanClick, onReset }: HeaderProps) {
           >
             <RefreshCw size={15} />
           </button>
+
+          <InstallAppButton />
 
           <button
             onClick={toggleTheme}
