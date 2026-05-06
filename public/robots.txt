@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://splitt-bill-olive.vercel.app/sitemap.xml
